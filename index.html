@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="description"
+    content="ShelfSpace is a modern book discovery and personal reading library application."
+  />
+
+  <title>ShelfSpace | Book Discovery & Personal Library</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap"
+    rel="stylesheet"
+  />
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+  />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <header class="topbar">
+    <a
+      href="#"
+      class="brand"
+      data-view-link="discover"
+      aria-label="Go to ShelfSpace home"
+    >
+      <span class="brand-icon">
+        <i class="fa-solid fa-book-open"></i>
+      </span>
+
+      <span class="brand-text">
+        <strong>ShelfSpace</strong>
+        <small>Find your next story</small>
+      </span>
+    </a>
+
+    <nav class="main-navigation" aria-label="Main navigation">
+      <button
+        type="button"
+        class="nav-button active"
+        data-view-link="discover"
+      >
+        <i class="fa-solid fa-compass"></i>
+        Discover
+      </button>
+
+      <button
+        type="button"
+        class="nav-button"
+        data-view-link="library"
+      >
+        <i class="fa-solid fa-layer-group"></i>
+        My Library
+      </button>
+
+      <button
+        type="button"
+        class="nav-button"
+        data-view-link="dashboard"
+      >
+        <i class="fa-solid fa-chart-pie"></i>
+        Dashboard
+      </button>
+    </nav>
+
+    <button
+      id="themeToggle"
+      class="icon-button"
+      type="button"
+      aria-label="Switch color theme"
+      title="Switch theme"
+    >
+      <i class="fa-solid fa-sun"></i>
+    </button>
+  </header>
+
+  <main>
+    <!-- Discover View -->
+    <section id="discoverView" class="view active-view">
+      <section class="hero-section">
+        <div class="hero-content">
+          <span class="eyebrow">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            Smart Book Discovery
+          </span>
+
+          <h1>
+            Stories worth
+            <span>getting lost in.</span>
+          </h1>
+
+          <p>
+            Search millions of books, explore detailed information and build
+            your own personal reading library.
+          </p>
+
+          <form id="searchForm" class="search-form">
+            <i class="fa-solid fa-magnifying-glass"></i>
+
+            <input
+              id="searchInput"
+              type="search"
+              placeholder="Search by title, author or ISBN..."
+              autocomplete="off"
+              aria-label="Search books"
+              required
+            />
+
+            <button type="submit">
+              Search
+            </button>
+          </form>
+
+          <div
+            id="recentSearches"
+            class="recent-searches"
+            aria-label="Recent searches"
+          ></div>
+        </div>
+
+        <div class="hero-decoration" aria-hidden="true">
+          <div class="book-shape book-one"></div>
+          <div class="book-shape book-two"></div>
+          <div class="book-shape book-three"></div>
+        </div>
+      </section>
+
+      <section class="content-section">
+        <div class="section-heading">
+          <div>
+            <span class="section-label">Explore</span>
+            <h2 id="resultsTitle">Trending Books</h2>
+          </div>
+
+          <span id="resultCount" class="result-count"></span>
+        </div>
+
+        <div class="filters-container">
+          <label>
+            <span>Language</span>
+
+            <select id="languageFilter">
+              <option value="">All Languages</option>
+              <option value="en">English</option>
+              <option value="he">Hebrew</option>
+              <option value="es">Spanish</option>
+              <option value="fr">French</option>
+              <option value="de">German</option>
+            </select>
+          </label>
+
+          <label>
+            <span>Book Type</span>
+
+            <select id="typeFilter">
+              <option value="">All Books</option>
+              <option value="ebooks">Ebooks</option>
+              <option value="free-ebooks">Free Ebooks</option>
+              <option value="paid-ebooks">Paid Ebooks</option>
+              <option value="full">Full Preview</option>
+              <option value="partial">Partial Preview</option>
+            </select>
+          </label>
+
+          <label>
+            <span>Sort By</span>
+
+            <select id="sortFilter">
+              <option value="relevance">Relevance</option>
+              <option value="newest">Newest</option>
+            </select>
+          </label>
+        </div>
+
+        <div id="loadingState" class="state-message hidden">
+          <i class="fa-solid fa-spinner fa-spin"></i>
+          <p>Searching the shelves...</p>
+        </div>
+
+        <div id="errorState" class="state-message hidden">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <h3>Something went wrong</h3>
+          <p id="errorMessage">
+            The books could not be loaded. Please try again.
+          </p>
+        </div>
+
+        <div id="emptyState" class="state-message hidden">
+          <i class="fa-solid fa-book-open-reader"></i>
+          <h3>No books found</h3>
+          <p>Try another title, author, ISBN or filter.</p>
+        </div>
+
+        <div
+          id="booksGrid"
+          class="books-grid"
+          aria-live="polite"
+        ></div>
+
+        <button
+          id="loadMoreButton"
+          class="load-more-button hidden"
+          type="button"
+        >
+          Load More
+          <i class="fa-solid fa-arrow-down"></i>
+        </button>
+      </section>
+    </section>
+
+    <!-- Library View -->
+    <section id="libraryView" class="view">
+      <section class="page-header">
+        <span class="eyebrow">
+          <i class="fa-solid fa-bookmark"></i>
+          Personal Collection
+        </span>
+
+        <h1>My Library</h1>
+
+        <p>
+          Manage your saved books, favorites and personal reading progress.
+        </p>
+      </section>
+
+      <section class="content-section">
+        <div
+          class="library-tabs"
+          role="tablist"
+          aria-label="Library filters"
+        >
+          <button
+            type="button"
+            class="library-tab active"
+            data-library-filter="all"
+          >
+            All
+          </button>
+
+          <button
+            type="button"
+            class="library-tab"
+            data-library-filter="favorite"
+          >
+            Favorites
+          </button>
+
+          <button
+            type="button"
+            class="library-tab"
+            data-library-filter="want-to-read"
+          >
+            Want to Read
+          </button>
+
+          <button
+            type="button"
+            class="library-tab"
+            data-library-filter="reading"
+          >
+            Reading
+          </button>
+
+          <button
+            type="button"
+            class="library-tab"
+            data-library-filter="finished"
+          >
+            Finished
+          </button>
+        </div>
+
+        <div
+          id="libraryGrid"
+          class="books-grid"
+          aria-live="polite"
+        ></div>
+
+        <div id="libraryEmptyState" class="state-message hidden">
+          <i class="fa-solid fa-book"></i>
+          <h3>Your library is empty</h3>
+          <p>
+            Search for a book and add it to your personal collection.
+          </p>
+        </div>
+      </section>
+    </section>
+
+    <!-- Dashboard View -->
+    <section id="dashboardView" class="view">
+      <section class="page-header">
+        <span class="eyebrow">
+          <i class="fa-solid fa-chart-simple"></i>
+          Reading Insights
+        </span>
+
+        <h1>Your Dashboard</h1>
+
+        <p>
+          View a clear summary of your reading activity and personal library.
+        </p>
+      </section>
+
+      <section class="content-section">
+        <div class="statistics-grid">
+          <article class="statistic-card">
+            <i class="fa-solid fa-layer-group"></i>
+            <strong id="totalBooksStatistic">0</strong>
+            <span>Total Books</span>
+          </article>
+
+          <article class="statistic-card">
+            <i class="fa-solid fa-heart"></i>
+            <strong id="favoriteBooksStatistic">0</strong>
+            <span>Favorites</span>
+          </article>
+
+          <article class="statistic-card">
+            <i class="fa-solid fa-book-open"></i>
+            <strong id="readingBooksStatistic">0</strong>
+            <span>Currently Reading</span>
+          </article>
+
+          <article class="statistic-card">
+            <i class="fa-solid fa-circle-check"></i>
+            <strong id="finishedBooksStatistic">0</strong>
+            <span>Finished Books</span>
+          </article>
+        </div>
+
+        <div class="dashboard-panels">
+          <article class="dashboard-panel">
+            <div class="panel-heading">
+              <div>
+                <span class="section-label">Overview</span>
+                <h2>Reading Progress</h2>
+              </div>
+
+              <i class="fa-solid fa-chart-column"></i>
+            </div>
+
+            <div id="readingProgress"></div>
+          </article>
+
+          <article class="dashboard-panel">
+            <div class="panel-heading">
+              <div>
+                <span class="section-label">Activity</span>
+                <h2>Recently Added</h2>
+              </div>
+
+              <i class="fa-solid fa-clock-rotate-left"></i>
+            </div>
+
+            <div id="recentBooks"></div>
+          </article>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <!-- Book Details Modal -->
+  <div
+    id="bookModal"
+    class="modal hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modalTitle"
+  >
+    <div
+      class="modal-overlay"
+      data-close-modal
+      aria-hidden="true"
+    ></div>
+
+    <article class="modal-content">
+      <button
+        class="modal-close-button"
+        type="button"
+        data-close-modal
+        aria-label="Close book details"
+      >
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div id="modalBody"></div>
+    </article>
+  </div>
+
+  <!-- Toast Message -->
+  <div
+    id="toast"
+    class="toast"
+    role="status"
+    aria-live="polite"
+  ></div>
+
+  <footer>
+    <p>
+      Built with the Google Books API. Personal data is stored locally in the
+      browser.
+    </p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
